@@ -1900,6 +1900,14 @@
 			priority="normal"
 		>
 		</content-type>
+		<content-type
+			base-type="org.eclipse.core.runtime.text"
+			file-names="gradle.properties"
+			id="com.liferay.ide.language.server.gradle.properties"
+			name="Gradle Properties"
+			priority="normal"
+		>
+		</content-type>
 	</extension>
 	<extension
 		point="org.eclipse.lsp4e.languageServer"
@@ -1912,6 +1920,11 @@
 		</server>
 		<contentTypeMapping
 			contentType="com.liferay.ide.language.server.portal.properties"
+			id="com.liferay.ide.language.server"
+		>
+		</contentTypeMapping>
+		<contentTypeMapping
+			contentType="com.liferay.ide.language.server.gradle.properties"
 			id="com.liferay.ide.language.server"
 		>
 		</contentTypeMapping>
