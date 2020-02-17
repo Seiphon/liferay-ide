@@ -59,6 +59,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Gregory Amerson
  * @author Simon Jiang
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 @Component(
 	property = "id=" + AutoCorrectFindUpgradeProblemsCommandKeys.ID, scope = ServiceScope.PROTOTYPE,
@@ -176,6 +177,8 @@ public class AutoCorrectFindUpgradeProblemsCommand implements UpgradeCommand, Up
 			removeMarkers(upgradeProblems);
 
 			upgradeProblems.clear();
+
+			upgradePlan.addUpgradeProblems(upgradePlan.getIgnoredProblems());
 		}
 
 		List<IProject> projects = _resourceSelection.selectProjects(

@@ -37,6 +37,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 /**
  * @author Terry Jia
  * @author Gregory Amerson
+ * @author Seiphon Wang
  */
 @Component(
 	property = "id=" + RemoveUpgradeProblemMarkersCommandKeys.ID, scope = ServiceScope.PROTOTYPE,
@@ -59,6 +60,8 @@ public class RemoveUpgradeProblemMarkersCommand implements UpgradeCommand, Upgra
 			_upgradePlanner.dispatch(new UpgradeCommandPerformedEvent(this, new ArrayList<>(upgradeProblems)));
 
 			upgradeProblems.clear();
+
+			upgradePlan.addUpgradeProblems(upgradePlan.getIgnoredProblems());
 		}
 
 		return Status.OK_STATUS;

@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -59,6 +60,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Gregory Amerson
  * @author Terry Jia
  * @author Simon Jiang
+ * @author Seiphon Wang
  */
 @Component
 public class UpgradePlannerService implements UpgradePlanner {
@@ -434,7 +436,16 @@ public class UpgradePlannerService implements UpgradePlanner {
 			Collectors.toList()
 		);
 
+		Set<UpgradeProblem> ignoredProblemSet = upgradeProblems.stream(
+		).filter(
+			problem -> UpgradeProblem.STATUS_IGNORE == problem.getStatus()
+		).collect(
+			Collectors.toSet()
+		);
+
 		upgradePlan.addUpgradeProblems(upgradeProblems);
+
+		upgradePlan.addIgnoredProblems(ignoredProblemSet);
 	}
 
 	private void _loadUpgradeSteps(IMemento memento, List<UpgradeStep> upgradeSteps, UpgradeStep parentUpgradeStep) {

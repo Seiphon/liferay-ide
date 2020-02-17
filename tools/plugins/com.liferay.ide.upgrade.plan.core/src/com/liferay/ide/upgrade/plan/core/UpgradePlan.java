@@ -37,6 +37,8 @@ public interface UpgradePlan {
 
 	public String getTargetVersion();
 
+	public Collection<UpgradeProblem> getUnIgnoredProblems();
+
 	public Map<String, String> getUpgradeContext();
 
 	public String getUpgradePlanOutline();

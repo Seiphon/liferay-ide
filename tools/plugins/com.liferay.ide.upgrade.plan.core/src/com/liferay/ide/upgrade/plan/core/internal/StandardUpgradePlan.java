@@ -14,6 +14,7 @@
 
 package com.liferay.ide.upgrade.plan.core.internal;
 
+import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.upgrade.plan.core.UpgradePlan;
 import com.liferay.ide.upgrade.plan.core.UpgradeProblem;
 import com.liferay.ide.upgrade.plan.core.UpgradeStep;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Adapters;
@@ -107,6 +109,18 @@ public class StandardUpgradePlan implements UpgradePlan {
 	@Override
 	public String getTargetVersion() {
 		return _targetVersion;
+	}
+
+	@Override
+	public Set<UpgradeProblem> getUnIgnoredProblems() {
+		Set<UpgradeProblem> unIgnoredProblems = _upgradeProblems.stream(
+		).filter(
+			findProblem -> ListUtil.notContains(_ignoredProblems, findProblem)
+		).collect(
+			Collectors.toSet()
+		);
+
+		return unIgnoredProblems;
 	}
 
 	@Override

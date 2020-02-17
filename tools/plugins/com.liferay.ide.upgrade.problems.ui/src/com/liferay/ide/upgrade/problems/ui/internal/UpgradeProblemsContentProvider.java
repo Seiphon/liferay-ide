@@ -111,7 +111,7 @@ public class UpgradeProblemsContentProvider extends AbstractNavigatorContentProv
 			return null;
 		}
 
-		Collection<UpgradeProblem> upgradeProblems = upgradePlan.getUpgradeProblems();
+		Collection<UpgradeProblem> upgradeProblems = upgradePlan.getUnIgnoredProblems();
 
 		UpgradeProblemsContainer upgradeProblemsContainer = new UpgradeProblemsContainer();
 

@@ -28,6 +28,7 @@ import com.liferay.ide.upgrade.problems.core.commands.FindUpgradeProblemsCommand
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -103,11 +104,16 @@ public class FindUpgradeProblemsCommand implements UpgradeCommand, UpgradeProble
 			Collectors.toList()
 		);
 
-		refreshProjects(foundUpgradeProblems, progressMonitor);
+		Set<UpgradeProblem> totalUpgradeProblems = new HashSet<>();
 
-		upgradePlan.addUpgradeProblems(foundUpgradeProblems);
+		totalUpgradeProblems.addAll(foundUpgradeProblems);
+		totalUpgradeProblems.addAll(ignoredProblems);
 
-		addMarkers(upgradePlan.getUpgradeProblems());
+		upgradePlan.addUpgradeProblems(totalUpgradeProblems);
+
+		refreshProjects(upgradePlan.getUnIgnoredProblems(), progressMonitor);
+
+		addMarkers(upgradePlan.getUnIgnoredProblems());
 
 		_upgradePlanner.dispatch(new UpgradeCommandPerformedEvent(this, new ArrayList<>(upgradeProblems)));
 
