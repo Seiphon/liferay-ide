@@ -34,6 +34,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Set;
@@ -60,6 +61,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Gregory Amerson
  * @author Terry Jia
  * @author Simon Jiang
+ * @author Seiphon Wang
  */
 @Component
 public class FileMigrationService implements FileMigration {
@@ -138,22 +140,10 @@ public class FileMigrationService implements FileMigration {
 			);
 
 			if (ListUtil.isNotEmpty(versions) && (versions.size() > 1)) {
-				versions.sort(
-					(v1, v2) -> {
-						Version version1 = new Version(v1);
-						Version version2 = new Version(v2);
-
-						return version2.compareTo(version1);
-					});
-
-				String version = versions.get(0);
-
 				Stream<ServiceReference<FileMigrator>> stream = fileMigrators.stream();
 
-				List<String> serviceReferencesWithVersion = stream.filter(
-					serviceReference -> version.equals(serviceReference.getProperty("version"))
-				).map(
-					reference -> (String)reference.getProperty("component.name")
+				List<String> repeatedComponentClassNames = stream.map(
+					fileMigrator -> (String)fileMigrator.getProperty("component.name")
 				).map(
 					componentName -> {
 						String[] s = componentName.split("\\.");
@@ -161,26 +151,59 @@ public class FileMigrationService implements FileMigration {
 						return s[s.length - 1];
 					}
 				).collect(
+					Collectors.groupingBy(Function.identity(), Collectors.counting())
+				).entrySet(
+				).stream(
+				).filter(
+					entry -> entry.getValue() > 1
+				).map(
+					entry -> entry.getKey()
+				).collect(
 					Collectors.toList()
 				);
 
 				stream = fileMigrators.stream();
 
-				List<ServiceReference<FileMigrator>> serviceReferencesWithoutVersion = stream.filter(
-					fileMigrator -> !version.equals(fileMigrator.getProperty("version"))
+				List<ServiceReference<FileMigrator>> serviceReferencesWithSameClassName = stream.filter(
+					reference -> {
+						String componentName = (String)reference.getProperty("component.name");
+
+						String[] s = componentName.split("\\.");
+
+						String className = s[s.length - 1];
+
+						if (ListUtil.contains(repeatedComponentClassNames, className)) {
+							return true;
+						}
+
+						return false;
+					}
 				).collect(
 					Collectors.toList()
 				);
 
-				for (ServiceReference<FileMigrator> serviceReferenceWithoutVersion : serviceReferencesWithoutVersion) {
-					String componentName = (String)serviceReferenceWithoutVersion.getProperty("component.name");
+				Version version = serviceReferencesWithSameClassName.stream(
+				).map(
+					serviceReference -> (String)serviceReference.getProperty("version")
+				).distinct(
+				).map(
+					v -> new Version(v)
+				).sorted(
+					Comparator.reverseOrder()
+				).findFirst(
+				).orElse(
+					null
+				);
 
-					String[] s = componentName.split("\\.");
+				if (version != null) {
+					for (ServiceReference<FileMigrator> serviceReferenceWithSameClassName :
+							serviceReferencesWithSameClassName) {
 
-					String className = s[s.length - 1];
+						if (!version.equals(
+								new Version((String)serviceReferenceWithSameClassName.getProperty("version")))) {
 
-					if (serviceReferencesWithVersion.contains(className)) {
-						fileMigrators.remove(serviceReferenceWithoutVersion);
+							fileMigrators.remove(serviceReferenceWithSameClassName);
+						}
 					}
 				}
 			}
