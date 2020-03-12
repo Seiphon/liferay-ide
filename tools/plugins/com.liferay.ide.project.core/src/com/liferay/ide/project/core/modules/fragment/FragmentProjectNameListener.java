@@ -34,6 +34,7 @@ import org.eclipse.sapphire.platform.PathBridge;
 /**
  * @author Simon Jiang
  * @author Andy Wu
+ * @author Seiphon Wang
  */
 public class FragmentProjectNameListener
 	extends FilteredListener<PropertyContentEvent> implements SapphireContentAccessor {
@@ -53,10 +54,6 @@ public class FragmentProjectNameListener
 
 	private void _updateLocation(NewModuleFragmentOp op) {
 		String currentProjectName = get(op.getProjectName());
-
-		if ((currentProjectName == null) || CoreUtil.isNullOrEmpty(currentProjectName.trim())) {
-			return;
-		}
 
 		boolean useDefaultLocation = get(op.getUseDefaultLocation());
 
@@ -117,7 +114,12 @@ public class FragmentProjectNameListener
 			}
 
 			if (newLocationBase != null) {
-				op.setLocation(newLocationBase);
+				if (CoreUtil.isNotNullOrEmpty(currentProjectName)) {
+					op.setLocation(newLocationBase.append(currentProjectName));
+				}
+				else {
+					op.setLocation(newLocationBase);
+				}
 			}
 		}
 	}
