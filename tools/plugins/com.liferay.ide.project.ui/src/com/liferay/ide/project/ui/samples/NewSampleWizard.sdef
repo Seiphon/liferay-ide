@@ -42,7 +42,7 @@
                     <style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
                 </property-editor>
 				<property-editor>
-					<property>BuildType</property>
+					<property>ProjectProvider</property>
 					<style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
 				</property-editor>
                 <property-editor>

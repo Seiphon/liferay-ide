@@ -49,10 +49,6 @@ public class SampleProjectNameListener
 	private void _updateLocation(NewSampleOp op) {
 		String currentProjectName = get(op.getProjectName());
 
-		if (CoreUtil.isNullOrEmpty(currentProjectName)) {
-			return;
-		}
-
 		boolean useDefaultLocation = get(op.getUseDefaultLocation());
 
 		if (useDefaultLocation) {
@@ -82,7 +78,12 @@ public class SampleProjectNameListener
 			}
 
 			if (newLocationBase != null) {
-				op.setLocation(newLocationBase);
+				if (CoreUtil.isNotNullOrEmpty(currentProjectName)) {
+					op.setLocation(newLocationBase.append(currentProjectName));
+				}
+				else {
+					op.setLocation(newLocationBase);
+				}
 			}
 		}
 	}
