@@ -16,87 +16,50 @@ package com.liferay.ide.project.core.samples;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
+import com.liferay.ide.core.util.SapphireUtil;
+import com.liferay.ide.project.core.NewLiferayProjectProvider;
 import com.liferay.ide.project.core.ProjectCore;
-import com.liferay.ide.project.core.modules.BladeCLI;
+import com.liferay.ide.project.core.modules.BaseModuleOp;
 
-import java.io.File;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.sapphire.modeling.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.sapphire.modeling.ProgressMonitor;
 import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.modeling.Status.Severity;
+import org.eclipse.sapphire.platform.ProgressMonitorBridge;
+import org.eclipse.sapphire.platform.StatusBridge;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class NewSampleOpMethods {
 
-	public static final Status execute(NewSampleOp newSampleOp, ProgressMonitor progressMonitor) {
-		Status retval = Status.createOkStatus();
+	public static final Status execute(NewSampleOp newSampleOp, ProgressMonitor pm) {
+		IProgressMonitor progressMonitor = ProgressMonitorBridge.create(pm);
+
+		progressMonitor.beginTask("Creating Liferay sample project template files", 100);
+
+		Status retval = null;
 
 		Throwable errorStack = null;
 
-		String projectName = _getter.get(newSampleOp.getProjectName());
-
-		Path location = _getter.get(newSampleOp.getLocation());
-
-		String liferayVersion = _getter.get(newSampleOp.getLiferayVersion());
-
-		String buildType = _getter.get(newSampleOp.getBuildType());
-
-		String sampleName = _getter.get(newSampleOp.getSampleName());
-
-		StringBuffer sb = new StringBuffer();
-
-		sb.append("samples");
-		sb.append(" ");
-		sb.append("-b ");
-		sb.append(buildType);
-		sb.append(" ");
-		sb.append("-v ");
-		sb.append(liferayVersion);
-		sb.append(" ");
-		sb.append("-d ");
-		sb.append(location.toOSString());
-		sb.append(" ");
-		sb.append(sampleName);
-
 		try {
-			BladeCLI.execute(sb.toString());
+			NewLiferayProjectProvider<BaseModuleOp> newSampleProjectProvider = _getter.get(
+				newSampleOp.getProjectProvider());
 
-			Path oldPath = location.append(sampleName);
+			IStatus status = newSampleProjectProvider.createNewProject(newSampleOp, progressMonitor);
 
-			File oldFile = oldPath.toFile();
+			retval = StatusBridge.create(status);
 
-			Path newPath = location.append(projectName);
-
-			File newFile = newPath.toFile();
-
-			oldFile.renameTo(newFile);
-
-			Job job = new Job("Openning project " + projectName) {
-
-				@Override
-				protected IStatus run(IProgressMonitor progressMonitor) {
-					org.eclipse.core.runtime.Path projectLocation = new org.eclipse.core.runtime.Path(
-						newFile.getPath());
-
-					try {
-						CoreUtil.openProject(projectName, projectLocation, progressMonitor);
-					}
-					catch (CoreException ce) {
-						return ProjectCore.createErrorStatus(ce);
-					}
-
-					return org.eclipse.core.runtime.Status.OK_STATUS;
-				}
-
-			};
-
-			job.schedule();
+			if (retval.ok()) {
+				_updateBuildAndVersionPrefs(newSampleOp);
+			}
+			else if ((retval.severity() == Severity.ERROR) && (retval.exception() != null)) {
+				errorStack = retval.exception();
+			}
 		}
 		catch (Exception e) {
 			errorStack = e;
@@ -111,6 +74,24 @@ public class NewSampleOpMethods {
 		}
 
 		return retval;
+	}
+
+	private static void _updateBuildAndVersionPrefs(NewSampleOp op) {
+		try {
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(ProjectCore.PLUGIN_ID);
+
+			prefs.put(ProjectCore.PREF_DEFAULT_LIFERAY_VERSION_OPTION, SapphireUtil.getText(op.getLiferayVersion()));
+			prefs.put(
+				ProjectCore.PREF_DEFAULT_SAMPLE_PORTLET_PROJECT_BUILD_TYPE_OPTION,
+				SapphireUtil.getText(op.getProjectProvider()));
+
+			prefs.flush();
+		}
+		catch (Exception e) {
+			String msg = "Error updating default project build type or version.";
+
+			ProjectCore.logError(msg, e);
+		}
 	}
 
 	private static final SapphireContentAccessor _getter = new SapphireContentAccessor() {

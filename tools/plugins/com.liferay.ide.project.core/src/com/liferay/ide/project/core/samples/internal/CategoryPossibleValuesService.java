@@ -20,7 +20,7 @@ import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.samples.NewSampleOp;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,13 +30,14 @@ import org.eclipse.sapphire.PropertyContentEvent;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class CategoryPossibleValuesService extends PossibleValuesService implements SapphireContentAccessor {
 
 	@Override
 	public void dispose() {
 		if (_op() != null) {
-			SapphireUtil.detachListener(_op().property(NewSampleOp.PROP_BUILD_TYPE), _listener);
+			SapphireUtil.detachListener(_op().property(NewSampleOp.PROP_PROJECT_PROVIDER), _listener);
 		}
 
 		super.dispose();
@@ -49,20 +50,22 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 	@Override
 	protected void compute(Set<String> values) {
-		String liferayVersion = get(_op().getLiferayVersion());
-
-		String buildType = get(_op().getBuildType());
+		List<String> categoryList = new ArrayList<>();
 
 		try {
-			String[] lines = BladeCLI.execute("samples -lc -b " + buildType + " -v " + liferayVersion);
+			String[] lines = BladeCLI.execute("samples");
 
-			for (int i = 0; i < lines.length; i++) {
-				lines[i] = lines[i].trim();
+			for (int i = 2; i < lines.length; i++) {
+				if (lines[i].contains(":")) {
+					lines[i] = lines[i].trim();
+
+					lines[i] = lines[i].replace(":", "");
+
+					categoryList.add(lines[i]);
+				}
 			}
 
-			List<String> list = Arrays.asList(lines);
-
-			values.addAll(list.subList(1, list.size()));
+			values.addAll(categoryList.subList(1, categoryList.size()));
 		}
 		catch (BladeCLIException bclie) {
 		}
@@ -81,7 +84,7 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 		};
 
-		SapphireUtil.attachListener(_op().property(NewSampleOp.PROP_BUILD_TYPE), _listener);
+		SapphireUtil.attachListener(_op().property(NewSampleOp.PROP_PROJECT_PROVIDER), _listener);
 	}
 
 	private NewSampleOp _op() {

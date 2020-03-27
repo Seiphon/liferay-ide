@@ -14,13 +14,14 @@
 
 package com.liferay.ide.project.core.samples.internal;
 
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.samples.NewSampleOp;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -49,22 +50,50 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 
 	@Override
 	protected void compute(Set<String> values) {
-		String liferayVersion = get(_op().getLiferayVersion());
-
-		String buildType = get(_op().getBuildType());
-
 		String category = get(_op().getCategory());
 
-		try {
-			String[] lines = BladeCLI.execute("samples -b " + buildType + " -v " + liferayVersion + " -ca " + category);
+		if (CoreUtil.isNullOrEmpty(category)) {
+			return;
+		}
 
-			for (int i = 0; i < lines.length; i++) {
-				lines[i] = lines[i].trim();
+		List<String> categoryList = new ArrayList<>();
+
+		List<String> samplesList = new ArrayList<>();
+
+		try {
+			String[] lines = BladeCLI.execute("samples");
+
+			for (int i = 2; i < lines.length; i++) {
+				if (lines[i].contains(":")) {
+					lines[i] = lines[i].trim();
+
+					lines[i] = lines[i].replace(":", "");
+
+					categoryList.add(lines[i]);
+				}
 			}
 
-			List<String> list = Arrays.asList(lines);
+			boolean belongCategory = false;
 
-			values.addAll(list.subList(4, list.size()));
+			for (int i = 2; i < lines.length; i++) {
+				lines[i] = lines[i].trim();
+
+				if (lines[i].equals(category)) {
+					belongCategory = true;
+				}
+
+				if (categoryList.contains(lines[i]) && !lines[i].equals(category)) {
+					belongCategory = false;
+				}
+
+				if (belongCategory) {
+					samplesList.add(lines[i]);
+				}
+			}
+
+			if (!samplesList.isEmpty()) {
+				values.addAll(samplesList.subList(1, samplesList.size()));
+			}
 		}
 		catch (BladeCLIException bclie) {
 		}

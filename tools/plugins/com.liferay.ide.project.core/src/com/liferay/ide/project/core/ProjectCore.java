@@ -49,6 +49,7 @@ import org.osgi.framework.BundleContext;
  * @author Gregory Amerson
  * @author Simon Jiang
  * @author Kuo Zhang
+ * @author Seiphon Wangs
  */
 @SuppressWarnings("rawtypes")
 public class ProjectCore extends Plugin {
@@ -81,6 +82,9 @@ public class ProjectCore extends Plugin {
 	public static final String PREF_DEFAULT_PLUGIN_PROJECT_MAVEN_GROUPID = "default-plugin-project-maven-groupid";
 
 	// The key of default project build type for creating a new liferay plug in project
+
+	public static final String PREF_DEFAULT_SAMPLE_PORTLET_PROJECT_BUILD_TYPE_OPTION =
+		"project-sample-portlet-default-build-type-option";
 
 	public static final String PREF_DEFAULT_SPRING_MVC_PORTLET_PROJECT_BUILD_TYPE_OPTION =
 		"project-spring-mvc-portlet-default-build-type-option";
