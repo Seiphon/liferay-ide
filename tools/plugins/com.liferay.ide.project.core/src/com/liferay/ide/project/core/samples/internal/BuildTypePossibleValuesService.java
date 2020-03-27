@@ -14,32 +14,45 @@
 
 package com.liferay.ide.project.core.samples.internal;
 
-import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.core.ILiferayProjectProvider;
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.project.core.NewLiferayProjectProvider;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.sapphire.PossibleValuesService;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class BuildTypePossibleValuesService extends PossibleValuesService {
 
 	@Override
-	protected void compute(Set<String> values) {
-		try {
-			if (LiferayWorkspaceUtil.hasGradleWorkspace()) {
-				values.add("liferay-workspace");
+	public boolean ordered() {
+		return true;
+	}
 
-				return;
+	@Override
+	protected void compute(Set<String> values) {
+		values.addAll(_possibleValues);
+	}
+
+	protected void initPossibleValuesService() {
+		_possibleValues = new ArrayList<>();
+
+		for (ILiferayProjectProvider provider : LiferayCore.getProviders("module-sample")) {
+			if (provider instanceof NewLiferayProjectProvider<?>) {
+				_possibleValues.add(provider.getShortName());
 			}
 		}
-		catch (CoreException ce) {
-		}
 
-		values.add("maven");
-		values.add("gradle");
+		Collections.sort(_possibleValues);
 	}
+
+	private List<String> _possibleValues;
 
 }

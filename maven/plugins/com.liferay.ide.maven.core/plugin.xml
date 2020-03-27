@@ -65,6 +65,15 @@
 			shortName="maven-spring-mvc-portlet"
 		>
 		</liferayProjectProvider>
+		<liferayProjectProvider
+			class="com.liferay.ide.maven.core.MavenSampleProjectProvider"
+			displayName="Maven"
+			id="com.liferay.ide.maven.core.mavenSampleProjectProvider"
+			priority="high"
+			projectType="module-sample"
+			shortName="maven-sample"
+		>
+		</liferayProjectProvider>
 	</extension>
 	<extension
 		point="com.liferay.ide.core.liferayProjectProviders"

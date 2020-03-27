@@ -44,6 +44,14 @@
 			shortName="gradle-spring-mvc-portlet"
 		>
 		</liferayProjectProvider>
+		<liferayProjectProvider
+			class="com.liferay.ide.gradle.core.GradleSampleProjectProvider"
+			displayName="Gradle"
+			id="com.liferay.ide.gradle.core.gradleSampleProjectProvider"
+			projectType="module-sample"
+			shortName="gradle-sample"
+		>
+		</liferayProjectProvider>
 	</extension>
 	<extension
 		point="com.liferay.ide.core.liferayProjectImporters"

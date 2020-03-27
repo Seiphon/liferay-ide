@@ -16,6 +16,7 @@ package com.liferay.ide.project.core.samples;
 
 import com.liferay.ide.project.core.modules.BaseModuleOp;
 import com.liferay.ide.project.core.modules.ModuleProjectNameValidationService;
+import com.liferay.ide.project.core.samples.internal.BuildTypeDefaultValueService;
 import com.liferay.ide.project.core.samples.internal.BuildTypePossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.CategoryPossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleNamePossibleValuesService;
@@ -47,17 +48,11 @@ public interface NewSampleOp extends BaseModuleOp {
 	@Override
 	public Status execute(ProgressMonitor monitor);
 
-	public Value<String> getBuildType();
-
 	public Value<String> getCategory();
 
 	public Value<String> getLiferayVersion();
 
 	public Value<String> getSampleName();
-
-	@Required
-	@Service(impl = BuildTypePossibleValuesService.class)
-	public ValueProperty PROP_BUILD_TYPE = new ValueProperty(TYPE, "BuildType");
 
 	@Listeners(SampleProjectNameListener.class)
 	@Required
@@ -73,6 +68,12 @@ public interface NewSampleOp extends BaseModuleOp {
 	@Listeners(SampleProjectNameListener.class)
 	@Service(impl = ModuleProjectNameValidationService.class)
 	public ValueProperty PROP_PROJECT_NAME = new ValueProperty(TYPE, BaseModuleOp.PROP_PROJECT_NAME);
+
+	@Label(standard = "build type")
+	@Listeners(SampleProjectNameListener.class)
+	@Service(impl = BuildTypeDefaultValueService.class)
+	@Service(impl = BuildTypePossibleValuesService.class)
+	public ValueProperty PROP_PROJECT_PROVIDER = new ValueProperty(TYPE, BaseModuleOp.PROP_PROJECT_PROVIDER);
 
 	@Required
 	@Service(impl = SampleNamePossibleValuesService.class)
