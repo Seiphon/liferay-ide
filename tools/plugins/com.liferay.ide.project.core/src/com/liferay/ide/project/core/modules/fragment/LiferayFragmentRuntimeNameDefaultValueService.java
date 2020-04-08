@@ -42,7 +42,11 @@ public class LiferayFragmentRuntimeNameDefaultValueService
 	protected String compute() {
 		IRuntime[] runtimes = ServerCore.getRuntimes();
 
-		if (ListUtil.isEmpty(runtimes)) {
+		NewModuleFragmentFilesOp op = context(NewModuleFragmentFilesOp.class);
+
+		String projectName = get(op.getProjectName());
+
+		if (ListUtil.isEmpty(runtimes) || CoreUtil.isNullOrEmpty(projectName)) {
 			return _NONE;
 		}
 
@@ -67,10 +71,6 @@ public class LiferayFragmentRuntimeNameDefaultValueService
 			else {
 				break;
 			}
-
-			NewModuleFragmentFilesOp op = context(NewModuleFragmentFilesOp.class);
-
-			String projectName = get(op.getProjectName());
 
 			IProject project = CoreUtil.getProject(projectName);
 

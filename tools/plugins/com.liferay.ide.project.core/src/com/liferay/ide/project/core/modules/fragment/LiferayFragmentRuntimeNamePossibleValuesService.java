@@ -46,7 +46,11 @@ public class LiferayFragmentRuntimeNamePossibleValuesService
 
 		IProject workspaceProject = LiferayWorkspaceUtil.getWorkspaceProject();
 
-		if (ListUtil.isNotEmpty(runtimes)) {
+		NewModuleFragmentFilesOp op = context(NewModuleFragmentFilesOp.class);
+
+		String projectName = get(op.getProjectName());
+
+		if (ListUtil.isNotEmpty(runtimes) && CoreUtil.isNotNullOrEmpty(projectName)) {
 			for (IRuntime runtime : runtimes) {
 				if (LiferayServerCore.newPortalBundle(runtime.getLocation()) == null) {
 					continue;
@@ -65,10 +69,6 @@ public class LiferayFragmentRuntimeNamePossibleValuesService
 				else {
 					return;
 				}
-
-				NewModuleFragmentFilesOp op = context(NewModuleFragmentFilesOp.class);
-
-				String projectName = get(op.getProjectName());
 
 				IProject project = CoreUtil.getProject(projectName);
 
