@@ -16,9 +16,8 @@ package com.liferay.ide.project.core.samples.internal;
 
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.modules.BladeCLI;
-import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.samples.NewSampleOp;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +51,9 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 	protected void compute(Set<String> values) {
 		List<String> categoryList = new ArrayList<>();
 
-		try {
-			String[] lines = BladeCLI.execute("samples");
+		String[] lines = SampleProjectUtil.executeBladeDownloadCommand("samples", get(_op().getLiferayVersion()));
 
+		if (lines != null) {
 			for (int i = 2; i < lines.length; i++) {
 				if (lines[i].contains(":")) {
 					lines[i] = lines[i].trim();
@@ -66,8 +65,6 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 			}
 
 			values.addAll(categoryList.subList(1, categoryList.size()));
-		}
-		catch (BladeCLIException bclie) {
 		}
 	}
 

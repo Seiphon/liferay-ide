@@ -17,9 +17,8 @@ package com.liferay.ide.project.core.samples.internal;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.modules.BladeCLI;
-import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.samples.NewSampleOp;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.eclipse.sapphire.PropertyContentEvent;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class SampleNamePossibleValuesService extends PossibleValuesService implements SapphireContentAccessor {
 
@@ -60,9 +60,9 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 
 		List<String> samplesList = new ArrayList<>();
 
-		try {
-			String[] lines = BladeCLI.execute("samples");
+		String[] lines = SampleProjectUtil.executeBladeDownloadCommand("samples", get(_op().getLiferayVersion()));
 
+		if (lines != null) {
 			for (int i = 2; i < lines.length; i++) {
 				if (lines[i].contains(":")) {
 					lines[i] = lines[i].trim();
@@ -94,8 +94,6 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 			if (!samplesList.isEmpty()) {
 				values.addAll(samplesList.subList(1, samplesList.size()));
 			}
-		}
-		catch (BladeCLIException bclie) {
 		}
 	}
 

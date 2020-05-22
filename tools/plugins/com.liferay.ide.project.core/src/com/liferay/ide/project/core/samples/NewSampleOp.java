@@ -22,7 +22,6 @@ import com.liferay.ide.project.core.samples.internal.CategoryPossibleValuesServi
 import com.liferay.ide.project.core.samples.internal.SampleNamePossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleProjectNameListener;
 import com.liferay.ide.project.core.samples.internal.SampleProjectUseDefaultLocationListener;
-import com.liferay.ide.project.core.samples.internal.TargetLiferayVersionValidationService;
 import com.liferay.ide.project.core.service.TargetLiferayVersionDefaultValueService;
 import com.liferay.ide.project.core.service.TargetLiferayVersionPossibleValuesService;
 
@@ -62,7 +61,6 @@ public interface NewSampleOp extends BaseModuleOp {
 	@Label(standard = "liferay version")
 	@Service(impl = TargetLiferayVersionDefaultValueService.class)
 	@Service(impl = TargetLiferayVersionPossibleValuesService.class)
-	@Service(impl = TargetLiferayVersionValidationService.class)
 	public ValueProperty PROP_LIFERAY_VERSION = new ValueProperty(TYPE, "LiferayVersion");
 
 	@Listeners(SampleProjectNameListener.class)
