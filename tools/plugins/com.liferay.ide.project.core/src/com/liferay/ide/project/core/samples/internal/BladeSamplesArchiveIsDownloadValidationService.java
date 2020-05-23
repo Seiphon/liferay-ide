@@ -41,6 +41,12 @@ public class BladeSamplesArchiveIsDownloadValidationService
 
 	@Override
 	protected Status compute() {
+		NewSampleOp op = _op();
+
+		if (get(op.getCategory()) != null) {
+			return Status.createOkStatus();
+		}
+
 		if (SampleProjectUtil.isBladeRepoArchiveDownloading(get(_op().getLiferayVersion()))) {
 			return Status.createErrorStatus(
 				"Liferay Samples archive is downloading, please reopen the wizard later when downloading is done.");
@@ -57,6 +63,8 @@ public class BladeSamplesArchiveIsDownloadValidationService
 
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
+				compute();
+
 				refresh();
 			}
 

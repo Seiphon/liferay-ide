@@ -16,16 +16,25 @@ package com.liferay.ide.project.ui.samples;
 
 import com.liferay.ide.project.core.samples.NewSampleOp;
 import com.liferay.ide.project.ui.BaseProjectWizard;
+import com.liferay.ide.project.ui.SampleProjectUIUtil;
 
 import org.eclipse.sapphire.ui.def.DefinitionLoader;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class NewSampleWizard extends BaseProjectWizard<NewSampleOp> {
 
 	public NewSampleWizard() {
 		super(NewSampleOp.TYPE.instantiate(), DefinitionLoader.sdef(NewSampleWizard.class).wizard());
+	}
+
+	@Override
+	public boolean performCancel() {
+		SampleProjectUIUtil.listenIfDownloadCompletes();
+
+		return super.performCancel();
 	}
 
 }
