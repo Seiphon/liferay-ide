@@ -38,6 +38,9 @@ import org.eclipse.core.runtime.jobs.Job;
  */
 public class SampleProjectUtil {
 
+	public static final QualifiedName LIFERAY_BLADE_ARCHIVE_VERSION = new QualifiedName(
+		ProjectCore.PLUGIN_ID, "LIFERAY_BLADE_ARCHIVE_VERSION");
+
 	public static final QualifiedName LIFERAY_PROJECT_DOWNLOAD_JOB = new QualifiedName(
 		ProjectCore.PLUGIN_ID, "LIFERAY_PROJECT_DOWNLOAD_JOB");
 
@@ -87,6 +90,8 @@ public class SampleProjectUtil {
 				};
 
 				job.setProperty(LIFERAY_PROJECT_DOWNLOAD_JOB, new Object());
+
+				job.setProperty(LIFERAY_BLADE_ARCHIVE_VERSION, liferayVersion);
 
 				job.schedule();
 			}
