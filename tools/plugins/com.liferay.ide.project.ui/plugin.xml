@@ -2030,4 +2030,25 @@
 		>
 		</include>
 	</extension>
+	<extension
+		point="org.eclipse.mylyn.commons.notifications.ui.notifications"
+	>
+		<category
+			icon="icons/liferay_logo_16.png"
+			id="com.liferay.ide.project.ui.notifications"
+			label="Liferay IDE"
+		>
+		</category>
+		<event
+			categoryId="com.liferay.ide.project.ui.notifications"
+			icon="icons/liferay_logo_16.png"
+			id="com.liferay.ide.project.ui.notifications.downloadrequired"
+			label="Download Required"
+		>
+			<defaultHandler
+				sinkId="org.eclipse.mylyn.commons.notifications.sink.Popup"
+			>
+			</defaultHandler>
+		</event>
+	</extension>
 </plugin>

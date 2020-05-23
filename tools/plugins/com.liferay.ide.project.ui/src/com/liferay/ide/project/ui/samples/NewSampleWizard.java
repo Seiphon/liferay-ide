@@ -14,18 +14,43 @@
 
 package com.liferay.ide.project.ui.samples;
 
+import com.liferay.ide.core.workspace.WorkspaceConstants;
 import com.liferay.ide.project.core.samples.NewSampleOp;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 import com.liferay.ide.project.ui.BaseProjectWizard;
+import com.liferay.ide.project.ui.SampleProjectUIUtil;
 
+import java.io.IOException;
+
+import java.util.Collections;
+
+import org.eclipse.mylyn.commons.notifications.core.INotificationService;
+import org.eclipse.mylyn.commons.notifications.ui.NotificationsUi;
 import org.eclipse.sapphire.ui.def.DefinitionLoader;
 
 /**
  * @author Terry Jia
  */
+@SuppressWarnings("restriction")
 public class NewSampleWizard extends BaseProjectWizard<NewSampleOp> {
 
 	public NewSampleWizard() {
 		super(NewSampleOp.TYPE.instantiate(), DefinitionLoader.sdef(NewSampleWizard.class).wizard());
+
+		for (String liferayVersion : WorkspaceConstants.liferayTargetPlatformVersions.keySet()) {
+			try {
+				if (!SampleProjectUtil.isBladeRepoArchiveExist(liferayVersion)) {
+					INotificationService notificationService = NotificationsUi.getService();
+
+					notificationService.notify(
+						Collections.singletonList(
+							SampleProjectUIUtil.createDownloadRequiredNotification(liferayVersion)));
+				}
+			}
+			catch (IOException ioe) {
+				System.out.print(ioe);
+			}
+		}
 	}
 
 }
