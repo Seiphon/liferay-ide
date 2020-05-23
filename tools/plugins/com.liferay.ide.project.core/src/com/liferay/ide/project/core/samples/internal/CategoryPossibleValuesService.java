@@ -112,6 +112,8 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 					job.setProperty(SampleProjectUtil.LIFERAY_PROJECT_DOWNLOAD_JOB, new Object());
 
+					job.setProperty(SampleProjectUtil.LIFERAY_BLADE_ARCHIVE_VERSION, liferayVersion);
+
 					job.schedule();
 				}
 			}

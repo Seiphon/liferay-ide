@@ -19,6 +19,7 @@ import com.liferay.ide.project.core.modules.ModuleProjectNameValidationService;
 import com.liferay.ide.project.core.samples.internal.BladeSamplesArchiveIsDownloadValidationService;
 import com.liferay.ide.project.core.samples.internal.BuildTypeDefaultValueService;
 import com.liferay.ide.project.core.samples.internal.BuildTypePossibleValuesService;
+import com.liferay.ide.project.core.samples.internal.CategoryDefaultValueService;
 import com.liferay.ide.project.core.samples.internal.CategoryPossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleNamePossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleProjectNameListener;
@@ -57,6 +58,7 @@ public interface NewSampleOp extends BaseModuleOp {
 	@Listeners(SampleProjectNameListener.class)
 	@Required
 	@Service(impl = CategoryPossibleValuesService.class)
+	@Service(impl = CategoryDefaultValueService.class)
 	public ValueProperty PROP_CATEGORY = new ValueProperty(TYPE, "Category");
 
 	@Label(standard = "liferay version")
