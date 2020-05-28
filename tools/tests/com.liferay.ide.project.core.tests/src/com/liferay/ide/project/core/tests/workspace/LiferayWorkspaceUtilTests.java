@@ -69,7 +69,7 @@ public class LiferayWorkspaceUtilTests extends ProjectCoreBase
     {
         NewLiferayWorkspaceOp op = NewLiferayWorkspaceOp.TYPE.instantiate();
 
-        op.setWorkspaceName( "test-liferay-workspace" );
+        op.setWorkspaceName( "test-gradle-liferay-workspace" );
         op.setUseDefaultLocation( true );
 
         if( op.validation().ok() )
@@ -79,7 +79,7 @@ public class LiferayWorkspaceUtilTests extends ProjectCoreBase
 
         waitForBuildAndValidation();
 
-        IProject workspaceProject = CoreUtil.getProject( "test-liferay-workspace" );
+        IProject workspaceProject = CoreUtil.getProject( "test-gradle-liferay-workspace" );
 
         assertTrue(workspaceProject != null);
         assertTrue(workspaceProject.exists());
