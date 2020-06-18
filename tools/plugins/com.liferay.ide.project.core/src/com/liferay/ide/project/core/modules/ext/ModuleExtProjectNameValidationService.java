@@ -50,6 +50,13 @@ public class ModuleExtProjectNameValidationService extends ModuleProjectNameVali
 		Version liferayWorkspaceVersion = Version.parseVersion(
 			LiferayWorkspaceUtil.getLiferayWorkspaceProjectVersion());
 
+		if (CoreUtil.compareVersions(liferayWorkspaceVersion, new Version("0.0.0")) == 0) {
+			return Status.createErrorStatus(
+				"The property `liferay.workspace.product` or `liferay.workspace.target.platform.version` has not " +
+					"been set. It is recommended to set thess property in gradle.properties in the workspace " +
+						"directory.");
+		}
+
 		Version version70 = new Version("7.0");
 
 		if (CoreUtil.compareVersions(liferayWorkspaceVersion, version70) <= 0) {
