@@ -1,13 +1,6 @@
 name: Publish
 
-on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '*.commits'
-      - '*.markdown'
-      - '**/*.markdown'
+on: [pull_request]
 
 env:
   LC_ALL: en_US.UTF-8
@@ -39,7 +32,7 @@ jobs:
       - name: Build repository
         shell: bash
         run: |
-          ./mvnw clean
+          ./mvnw clean package -DskipTests=true
 #          ./mvnw clean package -DskipTests=true
 #      - name: Upload p2 repository
 #        env:
