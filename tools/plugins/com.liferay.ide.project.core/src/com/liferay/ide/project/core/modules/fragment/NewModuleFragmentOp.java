@@ -39,7 +39,7 @@ import org.eclipse.sapphire.modeling.annotations.Whitespace;
  * @author Terry Jia
  */
 public interface NewModuleFragmentOp extends BaseModuleOp {
-
+// just for test
 	public ElementType TYPE = new ElementType(NewModuleFragmentOp.class);
 
 	@DelegateImplementation(NewModuleFragmentOpMethods.class)
