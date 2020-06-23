@@ -14,82 +14,51 @@
 
 package com.liferay.ide.project.core.workspace;
 
-import com.liferay.ide.core.LiferayCore;
-import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.core.util.SapphireContentAccessor;
+import com.liferay.ide.core.workspace.WorkspaceConstants;
 
 import org.eclipse.sapphire.DefaultValueService;
-import org.eclipse.sapphire.FilteredListener;
-import org.eclipse.sapphire.PropertyContentEvent;
-import org.eclipse.sapphire.Value;
-import org.eclipse.sapphire.modeling.Path;
 
 /**
- * @author Andy Wu
+ * @author Seiphon Wang
  */
-public class BundleUrlDefaultValueService extends DefaultValueService {
-
-	@Override
-	public void dispose() {
-		ImportLiferayWorkspaceOp op = _op();
-
-		Value<Object> workspaceLocation = op.property(ImportLiferayWorkspaceOp.PROP_WORKSPACE_LOCATION);
-
-		workspaceLocation.detach(_listener);
-
-		super.dispose();
-	}
+public class BundleUrlDefaultValueService extends DefaultValueService implements SapphireContentAccessor {
 
 	@Override
 	protected String compute() {
-		ImportLiferayWorkspaceOp op = _op();
+		NewLiferayWorkspaceOp op = _op();
 
-		Value<Path> workspaceLocationValue = op.getWorkspaceLocation();
+		NewLiferayWorkspaceProjectProvider<NewLiferayWorkspaceOp> workspaceProjectProvider = get(
+			op.getProjectProvider());
 
-		Path path = workspaceLocationValue.content();
+		String buildType = workspaceProjectProvider.getDisplayName();
 
-		if (path == null) {
+		if (buildType.equals("Gradle")) {
 			return null;
 		}
 
-		String workspaceLocation = path.toPortableString();
+		String liferayVersion = get(op.getLiferayVersion());
 
-		String buildType = LiferayWorkspaceUtil.getWorkspaceType(workspaceLocation);
+		switch (liferayVersion) {
+			case "7.3":
+				return WorkspaceConstants.BUNDLE_URL_CE_7_3;
 
-		if (buildType == null) {
-			return null;
+			case "7.2":
+				return WorkspaceConstants.BUNDLE_URL_CE_7_2;
+
+			case "7.1":
+				return WorkspaceConstants.BUNDLE_URL_CE_7_1;
+
+			case "7.0":
+				return WorkspaceConstants.BUNDLE_URL_CE_7_0;
+
+			default:
+				return WorkspaceConstants.BUNDLE_URL_CE_7_3;
 		}
-
-		@SuppressWarnings("unchecked")
-		NewLiferayWorkspaceProjectProvider<NewLiferayWorkspaceOp> provider =
-			(NewLiferayWorkspaceProjectProvider<NewLiferayWorkspaceOp>)LiferayCore.getProvider(buildType);
-
-		return provider.getInitBundleUrl(workspaceLocation);
 	}
 
-	@Override
-	protected void initDefaultValueService() {
-		super.initDefaultValueService();
-
-		_listener = new FilteredListener<PropertyContentEvent>() {
-
-			@Override
-			protected void handleTypedEvent(PropertyContentEvent event) {
-				refresh();
-			}
-
-		};
-
-		ImportLiferayWorkspaceOp op = _op();
-
-		Value<Object> workspaceLocation = op.property(ImportLiferayWorkspaceOp.PROP_WORKSPACE_LOCATION);
-
-		workspaceLocation.attach(_listener);
+	private NewLiferayWorkspaceOp _op() {
+		return context(NewLiferayWorkspaceOp.class);
 	}
-
-	private ImportLiferayWorkspaceOp _op() {
-		return context(ImportLiferayWorkspaceOp.class);
-	}
-
-	private FilteredListener<PropertyContentEvent> _listener;
 
 }
