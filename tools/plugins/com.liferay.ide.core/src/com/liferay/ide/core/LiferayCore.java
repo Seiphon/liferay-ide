@@ -14,7 +14,9 @@
 
 package com.liferay.ide.core;
 
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.ListUtil;
+import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
 import com.liferay.ide.core.workspace.ProjectChangeListener;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -276,7 +279,18 @@ public class LiferayCore extends Plugin {
 	private static <T extends ILiferayProject> ILiferayProject _checkProjectCache(Class<T> type, Object adaptable) {
 		Map<ProjectCacheKey<?>, ILiferayProject> projectCache = _plugin._projectCache;
 
-		ProjectCacheKey<T> projectCacheKey = new ProjectCacheKey<>(type, adaptable);
+		String buildType = null;
+
+		if (adaptable instanceof IProject) {
+			if (LiferayWorkspaceUtil.isValidGradleWorkspaceProject((IProject)adaptable)) {
+				buildType = "gradle";
+			}
+			else if (LiferayWorkspaceUtil.isValidMavenWorkspaceProject((IProject)adaptable)) {
+				buildType = "maven";
+			}
+		}
+
+		ProjectCacheKey<T> projectCacheKey = new ProjectCacheKey<>(type, adaptable, buildType);
 
 		ILiferayProject liferayProject = projectCache.get(projectCacheKey);
 
@@ -353,7 +367,18 @@ public class LiferayCore extends Plugin {
 
 		Map<ProjectCacheKey<?>, ILiferayProject> projectCache = _plugin._projectCache;
 
-		projectCache.put(new ProjectCacheKey<>(type, adaptable), liferayProject);
+		String buildType = null;
+
+		if (adaptable instanceof IProject) {
+			if (LiferayWorkspaceUtil.isValidGradleWorkspaceProject((IProject)adaptable)) {
+				buildType = "gradle";
+			}
+			else if (LiferayWorkspaceUtil.isValidMavenWorkspaceProject((IProject)adaptable)) {
+				buildType = "maven";
+			}
+		}
+
+		projectCache.put(new ProjectCacheKey<>(type, adaptable, buildType), liferayProject);
 	}
 
 	private static void _removeFromCache(ProjectCacheKey<?> projectCacheKey, ILiferayProject liferayProject) {
@@ -388,9 +413,10 @@ public class LiferayCore extends Plugin {
 
 	private static class ProjectCacheKey<T extends ILiferayProject> {
 
-		public ProjectCacheKey(Class<T> type, Object adaptable) {
+		public ProjectCacheKey(Class<T> type, Object adaptable, String buildType) {
 			_type = type;
 			_adaptable = adaptable;
+			_buildType = buildType;
 		}
 
 		@Override
@@ -409,7 +435,15 @@ public class LiferayCore extends Plugin {
 
 			ProjectCacheKey<?> other = (ProjectCacheKey<?>)obj;
 
-			if (Objects.equals(_adaptable, other._adaptable) && Objects.equals(_type, other._type)) {
+			if (CoreUtil.isNullOrEmpty(_buildType)) {
+				if (Objects.equals(_adaptable, other._adaptable) && Objects.equals(_type, other._type)) {
+					return true;
+				}
+			}
+
+			if (Objects.equals(_adaptable, other._adaptable) && Objects.equals(_type, other._type) &&
+				_buildType.equals(other._buildType)) {
+
 				return true;
 			}
 
@@ -418,15 +452,16 @@ public class LiferayCore extends Plugin {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(_adaptable, _type);
+			return Objects.hash(_adaptable, _type, _buildType);
 		}
 
 		@Override
 		public String toString() {
-			return "ProjectCacheKey [adaptable=" + _adaptable + ", type=" + _type + "]";
+			return "ProjectCacheKey [adaptable=" + _adaptable + ", type=" + _type + ", buildType=" + _buildType + "]";
 		}
 
 		private Object _adaptable;
+		private String _buildType;
 		private Class<T> _type;
 
 	}

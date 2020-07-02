@@ -579,6 +579,14 @@ public class LiferayWorkspaceUtil {
 		return isValidGradleWorkspaceLocation(project.getLocation());
 	}
 
+	public static boolean isValidMavenWorkspaceLocation(IPath location) {
+		if (FileUtil.notExists(location)) {
+			return false;
+		}
+
+		return isValidMavenWorkspaceLocation(location.toOSString());
+	}
+
 	public static boolean isValidMavenWorkspaceLocation(String location) {
 		File workspaceDir = new File(location);
 
@@ -593,6 +601,14 @@ public class LiferayWorkspaceUtil {
 		}
 
 		return false;
+	}
+
+	public static boolean isValidMavenWorkspaceProject(IProject project) {
+		if (Objects.isNull(project)) {
+			return false;
+		}
+
+		return isValidMavenWorkspaceLocation(project.getLocation());
 	}
 
 	public static boolean isValidWorkspace(IProject project) {
