@@ -14,17 +14,20 @@
 
 package com.liferay.ide.project.core.samples.internal;
 
+import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.modules.BladeCLI;
-import com.liferay.ide.project.core.modules.BladeCLIException;
+import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.samples.NewSampleOp;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PossibleValuesService;
 import org.eclipse.sapphire.PropertyContentEvent;
@@ -60,42 +63,45 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 
 		List<String> samplesList = new ArrayList<>();
 
-		try {
-			String[] lines = BladeCLI.execute("samples");
+		IWorkspaceProject workspace = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
 
-			for (int i = 2; i < lines.length; i++) {
-				if (lines[i].contains(":")) {
-					lines[i] = lines[i].trim();
+		IProject project = workspace.getProject();
 
-					lines[i] = lines[i].replace(":", "");
+		IPath location = project.getLocation();
 
-					categoryList.add(lines[i]);
-				}
-			}
+		String[] lines = SampleProjectUtil.executeSampleCommand(
+			"samples", get(_op().getLiferayVersion()), location.toString());
 
-			boolean belongCategory = false;
-
-			for (int i = 2; i < lines.length; i++) {
+		for (int i = 2; i < lines.length; i++) {
+			if (lines[i].contains(":")) {
 				lines[i] = lines[i].trim();
 
-				if (lines[i].equals(category)) {
-					belongCategory = true;
-				}
+				lines[i] = lines[i].replace(":", "");
 
-				if (categoryList.contains(lines[i]) && !lines[i].equals(category)) {
-					belongCategory = false;
-				}
-
-				if (belongCategory) {
-					samplesList.add(lines[i]);
-				}
-			}
-
-			if (!samplesList.isEmpty()) {
-				values.addAll(samplesList.subList(1, samplesList.size()));
+				categoryList.add(lines[i]);
 			}
 		}
-		catch (BladeCLIException bclie) {
+
+		boolean belongCategory = false;
+
+		for (int i = 2; i < lines.length; i++) {
+			lines[i] = lines[i].trim();
+
+			if (lines[i].equals(category)) {
+				belongCategory = true;
+			}
+
+			if (categoryList.contains(lines[i]) && !lines[i].equals(category)) {
+				belongCategory = false;
+			}
+
+			if (belongCategory) {
+				samplesList.add(lines[i]);
+			}
+		}
+
+		if (!samplesList.isEmpty()) {
+			values.addAll(samplesList.subList(1, samplesList.size()));
 		}
 	}
 

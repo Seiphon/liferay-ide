@@ -19,6 +19,7 @@ import com.liferay.ide.core.ILiferayProject;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.core.workspace.WorkspaceConstants;
 import com.liferay.ide.project.core.NewLiferayProjectProvider;
 import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.modules.BladeCLI;
@@ -26,6 +27,9 @@ import com.liferay.ide.project.core.samples.NewSampleOp;
 
 import java.io.File;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -87,6 +91,29 @@ public class GradleSampleProjectProvider
 			File newFile = location.toFile();
 
 			oldFile.renameTo(newFile);
+
+			String category = get(newSampleOp.getCategory());
+
+			if (CoreUtil.isNotNullOrEmpty(category)) {
+				IProject liferayWorkspaceProject = LiferayWorkspaceUtil.getWorkspaceProject();
+
+				PropertiesConfiguration config = new PropertiesConfiguration(
+					new File(liferayWorkspaceProject.getLocation() + "/gradle.properties"));
+
+				Object moduleDirPropertity = config.getProperty(WorkspaceConstants.MODULES_DIR_PROPERTY);
+
+				String moduleDir = moduleDirPropertity.toString();
+
+				if (!moduleDir.contains(category)) {
+					if (moduleDir.contains(",")) {
+						moduleDir = moduleDir.substring(1, moduleDir.length() - 1);
+					}
+
+					config.setProperty(WorkspaceConstants.MODULES_DIR_PROPERTY, moduleDir + "," + category);
+
+					config.save();
+				}
+			}
 
 			Job job = new Job("Openning project " + projectName) {
 
