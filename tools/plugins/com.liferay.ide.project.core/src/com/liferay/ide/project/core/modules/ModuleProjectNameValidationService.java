@@ -61,7 +61,7 @@ public class ModuleProjectNameValidationService extends ValidationService implem
 
 		Path currentProjectLocation = get(op.getLocation());
 
-		if (_requiredLiferayWorkspace) {
+		if (_requiredLiferayWorkspace && (currentProjectLocation != null)) {
 			IProject workspaceProject = LiferayWorkspaceUtil.getWorkspaceProject();
 
 			if ((workspaceProject == null) ||

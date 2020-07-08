@@ -14,16 +14,19 @@
 
 package com.liferay.ide.project.core.samples.internal;
 
+import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.modules.BladeCLI;
-import com.liferay.ide.project.core.modules.BladeCLIException;
+import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.samples.NewSampleOp;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PossibleValuesService;
 import org.eclipse.sapphire.PropertyContentEvent;
@@ -52,23 +55,26 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 	protected void compute(Set<String> values) {
 		List<String> categoryList = new ArrayList<>();
 
-		try {
-			String[] lines = BladeCLI.execute("samples");
+		IWorkspaceProject workspace = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
 
-			for (int i = 2; i < lines.length; i++) {
-				if (lines[i].contains(":")) {
-					lines[i] = lines[i].trim();
+		IProject project = workspace.getProject();
 
-					lines[i] = lines[i].replace(":", "");
+		IPath location = project.getLocation();
 
-					categoryList.add(lines[i]);
-				}
+		String[] lines = SampleProjectUtil.executeSampleCommand(
+			"samples", get(_op().getLiferayVersion()), location.toString());
+
+		for (int i = 2; i < lines.length; i++) {
+			if (lines[i].contains(":")) {
+				lines[i] = lines[i].trim();
+
+				lines[i] = lines[i].replace(":", "");
+
+				categoryList.add(lines[i]);
 			}
+		}
 
-			values.addAll(categoryList.subList(1, categoryList.size()));
-		}
-		catch (BladeCLIException bclie) {
-		}
+		values.addAll(categoryList.subList(1, categoryList.size()));
 	}
 
 	@Override
