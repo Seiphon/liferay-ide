@@ -16,6 +16,7 @@ package com.liferay.ide.ui;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.project.core.util.SampleProjectUtil;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.ui.templates.ServiceClassNameResolver;
@@ -169,6 +170,8 @@ public class LiferayUIPlugin extends AbstractUIPlugin implements IStartup {
 
 			notificationService.notify(Collections.singletonList(_createJava8RequiredNotification()));
 		}
+
+		SampleProjectUtil.downloadAllSampleArchive();
 	}
 
 	public Image getImage(String key) {
