@@ -24,12 +24,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import java.util.Date;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
@@ -37,22 +38,35 @@ import org.eclipse.core.runtime.jobs.Job;
  */
 public class SampleProjectUtil {
 
+	public static final QualifiedName LIFERAY_PROJECT_DOWNLOAD_JOB = new QualifiedName(
+		ProjectCore.PLUGIN_ID, "LIFERAY_PROJECT_DOWNLOAD_JOB");
+
 	public static void downloadAllSampleArchive() {
 		for (String liferayVersion : WorkspaceConstants.liferayTargetPlatformVersions.keySet()) {
-			executeSampleCommand("samples", liferayVersion, null);
+			executeSampleCommand("samples", liferayVersion, null, false);
 		}
 	}
 
-	public static String[] executeSampleCommand(String command, String liferayVersion, String dir) {
+	public static String[] executeSampleCommand(String command, String liferayVersion, String dir, boolean ignore) {
 		String[] lines = null;
 
 		try {
 			if (isBladeRepoArchiveExist(liferayVersion)) {
 				if (dir != null) {
-					lines = BladeCLI.execute(command + " -v " + liferayVersion + " --base " + dir);
+					if (ignore) {
+						lines = BladeCLI.execute(command + " -v " + liferayVersion + " --base " + dir + " --ignore");
+					}
+					else {
+						lines = BladeCLI.execute(command + " -v " + liferayVersion + " --base " + dir);
+					}
 				}
 				else {
-					lines = BladeCLI.execute(command + " -v " + liferayVersion);
+					if (ignore) {
+						lines = BladeCLI.execute(command + " -v " + liferayVersion + " --ignore");
+					}
+					else {
+						lines = BladeCLI.execute(command + " -v " + liferayVersion);
+					}
 				}
 			}
 			else {
@@ -71,6 +85,8 @@ public class SampleProjectUtil {
 					}
 
 				};
+
+				job.setProperty(LIFERAY_PROJECT_DOWNLOAD_JOB, new Object());
 
 				job.schedule();
 			}
@@ -94,6 +110,24 @@ public class SampleProjectUtil {
 		return samplesCachePath;
 	}
 
+	public static boolean isBladeRepoArchiveDownloading(String liferayVersion) {
+		IJobManager jobManager = Job.getJobManager();
+
+		Job[] jobs = jobManager.find(null);
+
+		for (Job job : jobs) {
+			if (job.getProperty(LIFERAY_PROJECT_DOWNLOAD_JOB) != null) {
+				String jobName = job.getName();
+
+				if (jobName.contains(liferayVersion)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isBladeRepoArchiveExist(String liferayVersion) throws IOException {
 		Path cachePath = getSamplesCachePath();
 
@@ -103,23 +137,7 @@ public class SampleProjectUtil {
 
 		File bladeRepoArchive = new File(cachePath.toFile(), bladeRepoArchiveName);
 
-		Date now = new Date();
-
-		if (bladeRepoArchive.exists()) {
-			long diff = now.getTime() - bladeRepoArchive.lastModified();
-
-			boolean old = false;
-
-			if (diff > _FILE_EXPIRATION_TIME) {
-				old = true;
-			}
-
-			if (old || !isZipValid(bladeRepoArchive)) {
-				bladeRepoArchive.delete();
-			}
-		}
-
-		if (bladeRepoArchive.exists()) {
+		if (bladeRepoArchive.exists() && isZipValid(bladeRepoArchive)) {
 			return true;
 		}
 
@@ -134,8 +152,6 @@ public class SampleProjectUtil {
 			return false;
 		}
 	}
-
-	private static final long _FILE_EXPIRATION_TIME = 604800000;
 
 	private static final File _USER_HOME_DIR = new File(System.getProperty("user.home"));
 

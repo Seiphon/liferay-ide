@@ -18,15 +18,24 @@ import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.samples.NewSampleOp;
 import com.liferay.ide.project.core.util.SampleProjectUtil;
 
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PossibleValuesService;
 import org.eclipse.sapphire.PropertyContentEvent;
@@ -53,7 +62,12 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 	@Override
 	protected void compute(Set<String> values) {
-		List<String> categoryList = new ArrayList<>();
+		values.addAll(_categoryList);
+	}
+
+	@Override
+	protected void initPossibleValuesService() {
+		super.initPossibleValuesService();
 
 		IWorkspaceProject workspace = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
 
@@ -61,25 +75,49 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 		IPath location = project.getLocation();
 
-		String[] lines = SampleProjectUtil.executeSampleCommand(
-			"samples", get(_op().getLiferayVersion()), location.toString());
+		String liferayVersion = get(_op().getLiferayVersion());
 
-		for (int i = 2; i < lines.length; i++) {
-			if (lines[i].contains(":")) {
-				lines[i] = lines[i].trim();
+		try {
+			if (SampleProjectUtil.isBladeRepoArchiveExist(liferayVersion)) {
+				String[] lines = SampleProjectUtil.executeSampleCommand(
+					"samples", get(_op().getLiferayVersion()), location.toString(), true);
 
-				lines[i] = lines[i].replace(":", "");
+				_categoryList.clear();
 
-				categoryList.add(lines[i]);
+				_categoryList.addAll(_getCategoryFromLines(lines));
+			}
+			else {
+				if (!SampleProjectUtil.isBladeRepoArchiveDownloading(liferayVersion)) {
+					Job job = new Job("Downloading liferay blade samples archive for " + liferayVersion) {
+
+						@Override
+						protected IStatus run(IProgressMonitor progressMonitor) {
+							try {
+								String[] lines = BladeCLI.execute("samples -v " + liferayVersion);
+
+								_categoryList.clear();
+
+								_categoryList.addAll(_getCategoryFromLines(lines));
+
+								refresh();
+							}
+							catch (Exception e) {
+								return ProjectCore.createErrorStatus(e);
+							}
+
+							return Status.OK_STATUS;
+						}
+
+					};
+
+					job.setProperty(SampleProjectUtil.LIFERAY_PROJECT_DOWNLOAD_JOB, new Object());
+
+					job.schedule();
+				}
 			}
 		}
-
-		values.addAll(categoryList.subList(1, categoryList.size()));
-	}
-
-	@Override
-	protected void initPossibleValuesService() {
-		super.initPossibleValuesService();
+		catch (IOException ioe) {
+		}
 
 		_listener = new FilteredListener<PropertyContentEvent>() {
 
@@ -90,13 +128,34 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 
 		};
 
-		SapphireUtil.attachListener(_op().property(NewSampleOp.PROP_PROJECT_PROVIDER), _listener);
+		SapphireUtil.attachListener(_op().property(NewSampleOp.PROP_LIFERAY_VERSION), _listener);
+	}
+
+	private List<String> _getCategoryFromLines(String[] lines) {
+		List<String> categoryList = new ArrayList<>();
+
+		if (Objects.nonNull(lines)) {
+			for (int i = 2; i < lines.length; i++) {
+				if (lines[i].contains(":")) {
+					lines[i] = lines[i].trim();
+
+					lines[i] = lines[i].replace(":", "");
+
+					categoryList.add(lines[i]);
+				}
+			}
+
+			return categoryList.subList(1, categoryList.size());
+		}
+
+		return categoryList;
 	}
 
 	private NewSampleOp _op() {
 		return context(NewSampleOp.class);
 	}
 
+	private List<String> _categoryList = new ArrayList<>();
 	private FilteredListener<PropertyContentEvent> _listener;
 
 }
