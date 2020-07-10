@@ -16,18 +16,28 @@ package com.liferay.ide.project.ui.samples;
 
 import com.liferay.ide.project.core.samples.NewSampleOp;
 import com.liferay.ide.project.ui.BaseProjectWizard;
+import com.liferay.ide.project.ui.RequireLiferayWorkspaceProject;
 import com.liferay.ide.project.ui.SampleProjectUIUtil;
 
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.sapphire.ui.def.DefinitionLoader;
+import org.eclipse.ui.IWorkbench;
 
 /**
  * @author Terry Jia
  * @author Seiphon Wang
  */
-public class NewSampleWizard extends BaseProjectWizard<NewSampleOp> {
+public class NewSampleWizard extends BaseProjectWizard<NewSampleOp> implements RequireLiferayWorkspaceProject {
 
 	public NewSampleWizard() {
 		super(NewSampleOp.TYPE.instantiate(), DefinitionLoader.sdef(NewSampleWizard.class).wizard());
+	}
+
+	@Override
+	public void init(IWorkbench workbench, IStructuredSelection selection) {
+		super.init(workbench, selection);
+
+		promptIfLiferayWorkspaceNotExists("Liferay Sample Project");
 	}
 
 	@Override
