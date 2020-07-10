@@ -24,6 +24,7 @@ import com.liferay.ide.project.core.util.SampleProjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -34,6 +35,7 @@ import org.eclipse.sapphire.PropertyContentEvent;
 
 /**
  * @author Terry Jia
+ * @author Seiphon Wang
  */
 public class SampleNamePossibleValuesService extends PossibleValuesService implements SapphireContentAccessor {
 
@@ -70,15 +72,17 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 		IPath location = project.getLocation();
 
 		String[] lines = SampleProjectUtil.executeSampleCommand(
-			"samples", get(_op().getLiferayVersion()), location.toString());
+			"samples", get(_op().getLiferayVersion()), location.toString(), true);
 
-		for (int i = 2; i < lines.length; i++) {
-			if (lines[i].contains(":")) {
-				lines[i] = lines[i].trim();
+		if (Objects.nonNull(lines)) {
+			for (int i = 2; i < lines.length; i++) {
+				if (lines[i].contains(":")) {
+					lines[i] = lines[i].trim();
 
-				lines[i] = lines[i].replace(":", "");
+					lines[i] = lines[i].replace(":", "");
 
-				categoryList.add(lines[i]);
+					categoryList.add(lines[i]);
+				}
 			}
 		}
 

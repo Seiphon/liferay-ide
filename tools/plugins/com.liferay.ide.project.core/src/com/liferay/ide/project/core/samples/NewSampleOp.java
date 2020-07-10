@@ -16,13 +16,13 @@ package com.liferay.ide.project.core.samples;
 
 import com.liferay.ide.project.core.modules.BaseModuleOp;
 import com.liferay.ide.project.core.modules.ModuleProjectNameValidationService;
+import com.liferay.ide.project.core.samples.internal.BladeSamplesArchiveIsDownloadValidationService;
 import com.liferay.ide.project.core.samples.internal.BuildTypeDefaultValueService;
 import com.liferay.ide.project.core.samples.internal.BuildTypePossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.CategoryPossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleNamePossibleValuesService;
 import com.liferay.ide.project.core.samples.internal.SampleProjectNameListener;
 import com.liferay.ide.project.core.samples.internal.SampleProjectUseDefaultLocationListener;
-import com.liferay.ide.project.core.samples.internal.TargetLiferayVersionValidationService;
 import com.liferay.ide.project.core.service.TargetLiferayVersionDefaultValueService;
 import com.liferay.ide.project.core.service.TargetLiferayVersionPossibleValuesService;
 
@@ -62,11 +62,11 @@ public interface NewSampleOp extends BaseModuleOp {
 	@Label(standard = "liferay version")
 	@Service(impl = TargetLiferayVersionDefaultValueService.class)
 	@Service(impl = TargetLiferayVersionPossibleValuesService.class)
-	@Service(impl = TargetLiferayVersionValidationService.class)
 	public ValueProperty PROP_LIFERAY_VERSION = new ValueProperty(TYPE, "LiferayVersion");
 
 	@Listeners(SampleProjectNameListener.class)
 	@Service(impl = ModuleProjectNameValidationService.class)
+	@Service(impl = BladeSamplesArchiveIsDownloadValidationService.class)
 	public ValueProperty PROP_PROJECT_NAME = new ValueProperty(TYPE, BaseModuleOp.PROP_PROJECT_NAME);
 
 	@Label(standard = "build type")
