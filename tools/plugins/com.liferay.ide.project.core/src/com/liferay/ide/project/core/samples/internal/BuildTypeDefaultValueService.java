@@ -16,6 +16,7 @@ package com.liferay.ide.project.core.samples.internal;
 
 import com.liferay.ide.core.ILiferayProjectProvider;
 import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.ProjectCore;
 
 import org.eclipse.core.runtime.Platform;
@@ -32,6 +33,18 @@ public class BuildTypeDefaultValueService extends DefaultValueService {
 
 	@Override
 	protected String compute() {
+		try {
+			if (LiferayWorkspaceUtil.hasGradleWorkspace()) {
+				return "gradle-sample";
+			}
+
+			if (LiferayWorkspaceUtil.hasMavenWorkspace()) {
+				return "maven-sample";
+			}
+		}
+		catch (Exception e) {
+		}
+
 		IScopeContext[] prefContexts = {DefaultScope.INSTANCE, InstanceScope.INSTANCE};
 
 		IPreferencesService preferencesService = Platform.getPreferencesService();

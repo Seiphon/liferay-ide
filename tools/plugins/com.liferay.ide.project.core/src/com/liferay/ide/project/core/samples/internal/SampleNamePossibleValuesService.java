@@ -74,7 +74,7 @@ public class SampleNamePossibleValuesService extends PossibleValuesService imple
 		String[] lines = SampleProjectUtil.executeSampleCommand(
 			"samples", get(_op().getLiferayVersion()), location.toString(), true);
 
-		if (Objects.nonNull(lines)) {
+		if (Objects.nonNull(lines) && (lines.length > 0)) {
 			for (int i = 2; i < lines.length; i++) {
 				if (lines[i].contains(":")) {
 					lines[i] = lines[i].trim();

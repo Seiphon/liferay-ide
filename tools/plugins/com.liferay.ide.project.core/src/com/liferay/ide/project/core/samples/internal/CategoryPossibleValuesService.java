@@ -136,7 +136,7 @@ public class CategoryPossibleValuesService extends PossibleValuesService impleme
 	private List<String> _getCategoryFromLines(String[] lines) {
 		List<String> categoryList = new ArrayList<>();
 
-		if (Objects.nonNull(lines)) {
+		if (Objects.nonNull(lines) && (lines.length > 0)) {
 			for (int i = 2; i < lines.length; i++) {
 				if (lines[i].contains(":")) {
 					lines[i] = lines[i].trim();

@@ -40,6 +40,7 @@
 				<property-editor>
                     <property>LiferayVersion</property>
                     <style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
+                    <visible-when>${ HasWorkspaceLiferayVersion == 'false' }</visible-when>
                 </property-editor>
 				<property-editor>
 					<property>ProjectProvider</property>
