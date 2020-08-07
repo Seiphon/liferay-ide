@@ -38,6 +38,10 @@
 					name="init-bundle"
 				>
 				</groupMarker>
+				<groupMarker
+					name="init-blacklist"
+				>
+				</groupMarker>
 			</menu>
 		</objectContribution>
 		<objectContribution
@@ -61,6 +65,15 @@
 				id="com.liferay.ide.gradle.popup.action.initBundle"
 				label="Initialize Server Bundle"
 				menubarPath="liferayPopupMenuCategory/init-bundle"
+			>
+			</action>
+			<action
+				class="com.liferay.ide.gradle.action.InitBlacklistTaskAction"
+				enablesFor="1"
+				icon="icons/e16/liferay_logo_16.png"
+				id="com.liferay.ide.gradle.popup.action.initBundle"
+				label="init blacklist"
+				menubarPath="liferayPopupMenuCategory/init-blacklist"
 			>
 			</action>
 			<action
