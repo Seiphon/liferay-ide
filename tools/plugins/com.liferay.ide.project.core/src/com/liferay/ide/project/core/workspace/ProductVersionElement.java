@@ -26,18 +26,25 @@ import org.eclipse.sapphire.modeling.annotations.Service;
 
 /**
  * @author Gregory Amerson
+ * @author Seiphon Wang
  */
 public interface ProductVersionElement extends Element {
 
 	public ElementType TYPE = new ElementType(ProductVersionElement.class);
 
+	public Value<String> getFilterString();
+
 	public Value<String> getProductVersion();
 
 	public Value<Boolean> getShowAllProductVersions();
 
+	public void setFilterString(String filterString);
+
 	public void setProductVersion(String name);
 
 	public void setShowAllProductVersions(Boolean value);
+
+	public ValueProperty PROP_FILTER_STRING = new ValueProperty(TYPE, "FilterString");
 
 	@Label(standard = "Product Version")
 	@Required

@@ -41,6 +41,10 @@ public class ConfigureWorkspaceProductOpMethods {
 	public static final Status execute(
 		ConfigureWorkspaceProductOp configureProductOp, ProgressMonitor progressMonitor) {
 
+		if (_getter.get(configureProductOp.getSkipExecute())) {
+			return Status.createOkStatus();
+		}
+
 		try {
 			final String productKey = _getter.get(configureProductOp.getProductVersion());
 

@@ -15,6 +15,7 @@
 package com.liferay.ide.project.core.workspace;
 
 import com.liferay.ide.core.ILiferayProjectProvider;
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.ProjectCore;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -63,11 +65,35 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 	protected void compute(Set<String> values) {
 		ProductVersionElement element = context(ProductVersionElement.class);
 
+		String filterString = get(element.getFilterString());
+
 		if (get(element.getShowAllProductVersions())) {
-			values.addAll(_productVersions);
+			if (CoreUtil.isNotNullOrEmpty(filterString)) {
+				values.addAll(
+					_productVersions.stream(
+					).filter(
+						key -> key.contains(filterString)
+					).collect(
+						Collectors.toList()
+					));
+			}
+			else {
+				values.addAll(_productVersions);
+			}
 		}
 		else {
-			values.addAll(_promotedProductVersions);
+			if (CoreUtil.isNotNullOrEmpty(filterString)) {
+				values.addAll(
+					_promotedProductVersions.stream(
+					).filter(
+						key -> key.contains(filterString)
+					).collect(
+						Collectors.toList()
+					));
+			}
+			else {
+				values.addAll(_promotedProductVersions);
+			}
 		}
 	}
 

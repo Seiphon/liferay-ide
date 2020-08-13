@@ -16,13 +16,17 @@ package com.liferay.ide.project.core.workspace;
 
 import org.eclipse.sapphire.ElementType;
 import org.eclipse.sapphire.ExecutableElement;
+import org.eclipse.sapphire.Type;
+import org.eclipse.sapphire.Value;
 import org.eclipse.sapphire.ValueProperty;
 import org.eclipse.sapphire.modeling.ProgressMonitor;
 import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.modeling.annotations.DefaultValue;
 import org.eclipse.sapphire.modeling.annotations.DelegateImplementation;
 
 /**
  * @author Simon Jiang
+ * @author Seiphon Wang
  */
 public interface ConfigureWorkspaceProductOp extends ExecutableElement, ProductVersionElement {
 
@@ -32,6 +36,14 @@ public interface ConfigureWorkspaceProductOp extends ExecutableElement, ProductV
 	@Override
 	public Status execute(ProgressMonitor monitor);
 
+	public Value<Boolean> getSkipExecute();
+
+	public void setSkipExecute(Boolean value);
+
 	public ValueProperty PROP_PRODUCT_VERSION = new ValueProperty(ProductVersionElement.TYPE, "ProductVersion");
+
+	@DefaultValue(text = "false")
+	@Type(base = Boolean.class)
+	public ValueProperty PROP_SKIP_EXECUTE = new ValueProperty(TYPE, "SkipExecute");
 
 }
