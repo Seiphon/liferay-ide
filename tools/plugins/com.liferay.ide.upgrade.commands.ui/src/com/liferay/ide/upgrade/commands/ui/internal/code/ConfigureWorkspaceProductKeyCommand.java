@@ -115,52 +115,7 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 		return FileUtil.getFile(gradeProperties);
 	}
 
-	private IStatus _updateWorkspaceProductKeyValue(File gradeProperties) {
-		UpgradePlan upgradePlan = _upgradePlanner.getCurrentUpgradePlan();
-
-		String targetVersion = upgradePlan.getTargetVersion();
-
-		try {
-			final AtomicInteger returnCode = new AtomicInteger();
-
-			final AtomicReference<String> productKey = new AtomicReference<>();
-
-			UIUtil.sync(
-				() -> {
-					IWorkbench workbench = PlatformUI.getWorkbench();
-
-					IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
-
-					Shell shell = workbenchWindow.getShell();
-
-					AsyncStringFilterDialog dialog = new AsyncStringFilterDialog(shell, targetVersion);
-
-					dialog.setTitle("Please select a Liferay Product Key:");
-					dialog.setMessage("Liferay Product Key Selection");
-					dialog.setInput(new String[] {"Loading Data......"});
-					returnCode.set(dialog.open());
-
-					if (returnCode.get() == Window.OK) {
-						try {
-							PropertiesConfiguration config = new PropertiesConfiguration(gradeProperties);
-
-							config.setProperty(WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, productKey);
-
-							config.save();
-						}
-						catch (Exception e) {
-						}
-					}
-				});
-
-			return Status.OK_STATUS;
-		}
-		catch (Exception e) {
-			return UpgradeCommandsUIPlugin.createErrorStatus("Unable to configure worksapce product key", e);
-		}
-	}
-
-	private void loadInput(TreeViewer viewer, String targetPlatformVersion) {
+	private void _loadInput(TreeViewer viewer, String targetPlatformVersion) {
 		try {
 			UIUtil.async(
 				() -> {
@@ -198,6 +153,53 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 		}
 	}
 
+	private IStatus _updateWorkspaceProductKeyValue(File gradeProperties) {
+		UpgradePlan upgradePlan = _upgradePlanner.getCurrentUpgradePlan();
+
+		String targetVersion = upgradePlan.getTargetVersion();
+
+		try {
+			final AtomicInteger returnCode = new AtomicInteger();
+
+			final AtomicReference<String> productKey = new AtomicReference<>();
+
+			UIUtil.sync(
+				() -> {
+					IWorkbench workbench = PlatformUI.getWorkbench();
+
+					IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+
+					Shell shell = workbenchWindow.getShell();
+
+					AsyncStringFilteredDialog dialog = new AsyncStringFilteredDialog(shell, targetVersion);
+
+					dialog.setTitle("Please select a Liferay Product Key:");
+					dialog.setMessage("Liferay Product Key Selection");
+					dialog.setInput(new String[] {"Loading Data......"});
+
+					returnCode.set(dialog.open());
+					productKey.set((String)dialog.getFirstResult());
+				});
+
+			if (returnCode.get() == Window.OK) {
+				try {
+					PropertiesConfiguration config = new PropertiesConfiguration(gradeProperties);
+
+					config.setProperty(WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, productKey);
+
+					config.save();
+				}
+				catch (Exception e) {
+				}
+			}
+
+			return Status.OK_STATUS;
+		}
+		catch (Exception e) {
+			return UpgradeCommandsUIPlugin.createErrorStatus("Unable to configure worksapce product key", e);
+		}
+	}
+
 	@Reference
 	private ResourceSelection _resourceSelection;
 
@@ -208,9 +210,9 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 	private UpgradePlanner _upgradePlanner;
 
 	@SuppressWarnings("restriction")
-	private class AsyncStringFilterDialog extends StringsFilteredDialog {
+	private class AsyncStringFilteredDialog extends StringsFilteredDialog {
 
-		public AsyncStringFilterDialog(Shell shell, String targetPlatforVersion) {
+		public AsyncStringFilteredDialog(Shell shell, String targetPlatforVersion) {
 			super(shell);
 
 			_targetPlatformVersion = targetPlatforVersion;
@@ -220,7 +222,7 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 		protected TreeViewer doCreateTreeViewer(Composite parent, int style) {
 			TreeViewer treeViewer = super.doCreateTreeViewer(parent, style);
 
-			loadInput(treeViewer, _targetPlatformVersion);
+			_loadInput(treeViewer, _targetPlatformVersion);
 
 			return treeViewer;
 		}
