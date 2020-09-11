@@ -18,12 +18,15 @@ import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.workspace.ProjectChangeListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.ILog;
@@ -365,7 +368,22 @@ public class LiferayCore extends Plugin {
 			listenerRegistry.removeEventListener((EventListener)liferayProject);
 		}
 
-		projectCache.remove(projectCacheKey);
+		Set<Entry<ProjectCacheKey<?>, ILiferayProject>> entrySet = projectCache.entrySet();
+		
+		entrySet.stream(
+		).forEach(
+			entry -> {
+				ProjectCacheKey<?> key = entry.getKey();
+				
+				ILiferayProject project = entry.getValue();
+				
+				if ( project.equals(liferayProject)) {
+					projectCache.remove(key);
+				}
+			}
+		);
+		
+//		projectCache.remove(projectCacheKey);
 	}
 
 	private <T> ServiceTracker<T, T> _createServiceTracker(BundleContext context, Class<T> clazz) {

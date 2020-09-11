@@ -20,18 +20,17 @@ import com.liferay.ide.core.IProjectBuilder;
 import com.liferay.ide.core.IWorkspaceProjectBuilder;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.workspace.ProjectChangedEvent;
+import com.liferay.ide.core.workspace.ProjectDeletedEvent;
 import com.liferay.ide.core.workspace.WorkspaceConstants;
 import com.liferay.ide.project.core.LiferayWorkspaceProject;
 
 import java.io.File;
 import java.io.FileReader;
-
 import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
@@ -116,6 +115,12 @@ public class LiferayMavenWorkspaceProject extends LiferayWorkspaceProject implem
 
 	@Override
 	public void onEvent(Event event) {
+		if (event instanceof ProjectDeletedEvent) {
+			_stale = true;
+
+			return;
+		}
+		
 		Optional.of(
 			event
 		).filter(
