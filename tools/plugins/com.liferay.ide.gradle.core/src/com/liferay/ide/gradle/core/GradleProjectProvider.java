@@ -19,8 +19,10 @@ import com.liferay.ide.core.ILiferayProject;
 import com.liferay.ide.core.LiferayNature;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.core.util.PropertiesUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.core.workspace.WorkspaceConstants;
 import com.liferay.ide.gradle.core.model.GradleBuildScript;
 import com.liferay.ide.gradle.core.model.GradleDependency;
 import com.liferay.ide.project.core.NewLiferayProjectProvider;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -122,6 +125,12 @@ public class GradleProjectProvider
 		sb.append(projectTemplateName);
 		sb.append(" ");
 
+		if (CoreUtil.isNotNullOrEmpty(_getPruduct(workspaceLocation))) {
+			sb.append("--product ");
+			sb.append(_getPruduct(workspaceLocation));
+			sb.append(" ");
+		}
+
 		if (className != null) {
 			sb.append("-c ");
 			sb.append(className);
@@ -205,6 +214,27 @@ public class GradleProjectProvider
 		}
 
 		return null;
+	}
+
+	private String _getPruduct(IPath workspaceLocation) {
+		String product = null;
+
+		Properties gradleProperties = new Properties();
+
+		IPath gradlePropertiesPath = workspaceLocation.append("gradle.properties");
+
+		try {
+			gradleProperties.putAll(PropertiesUtil.loadProperties(gradlePropertiesPath));
+
+			String workspaceProductKey = gradleProperties.getProperty(
+				WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
+
+			product = workspaceProductKey.substring(0, workspaceProductKey.indexOf("-"));
+		}
+		catch (Exception e) {
+		}
+
+		return product;
 	}
 
 	private boolean _inGradleWorkspaceWars(IProject project) {
