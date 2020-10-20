@@ -141,7 +141,7 @@ public interface ResourceSelection {
 
 		@Override
 		public boolean test(Path path) {
-			return LiferayWorkspaceUtil.isValidGradleWorkspaceLocation(path.toString());
+			return LiferayWorkspaceUtil.isValidWorkspaceLocation(path.toString());
 		}
 
 	};

@@ -16,6 +16,8 @@ package com.liferay.ide.upgrade.commands.core.internal.code;
 
 import com.liferay.ide.core.ProjectSynchronizer;
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
+import com.liferay.ide.maven.core.MavenUtil;
 import com.liferay.ide.upgrade.commands.core.code.ImportExistingLiferayWorkspaceCommandKeys;
 import com.liferay.ide.upgrade.commands.core.internal.UpgradeCommandsCorePlugin;
 import com.liferay.ide.upgrade.plan.core.ResourceSelection;
@@ -72,12 +74,20 @@ public class ImportExistingLiferayWorkspaceCommand implements UpgradeCommand {
 		org.eclipse.core.runtime.Path wsLocation = new org.eclipse.core.runtime.Path(path.toString());
 
 		try {
+			LiferayWorkspaceUtil.clearWorkspace(wsLocation.toOSString());
+
 			CoreUtil.openProject(wsLocation.lastSegment(), wsLocation, progressMonitor);
 
-			_projectSynchronizer.synchronizePath(wsLocation, progressMonitor);
+			if (LiferayWorkspaceUtil.isValidGradleWorkspaceLocation(wsLocation)) {
+				_projectSynchronizer.synchronizePath(wsLocation, progressMonitor);
+			}
+			else {
+				MavenUtil.updateProjectConfiguration(
+					wsLocation.lastSegment(), wsLocation.toOSString(), progressMonitor);
+			}
 		}
-		catch (CoreException ce) {
-			return UpgradeCommandsCorePlugin.createErrorStatus("Importing Liferay workspace failed.", ce);
+		catch (CoreException | InterruptedException e) {
+			return UpgradeCommandsCorePlugin.createErrorStatus("Importing Liferay workspace failed.", e);
 		}
 
 		return Status.OK_STATUS;
