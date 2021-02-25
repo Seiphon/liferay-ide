@@ -14,6 +14,7 @@ Export-Package: com.liferay.ide.upgrade.problems.core,
 Require-Bundle: com.google.guava,
  com.liferay.ide.core,
  com.liferay.ide.gradle.core,
+ com.liferay.ide.project.core,
  com.liferay.ide.upgrade.plan.core,
  org.apache.commons.io,
  org.eclipse.core.resources,
@@ -194,4 +195,6 @@ Service-Component: OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.SSEXM
  OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay71.Liferay71DeprecatedMethodsMigrator.xml,
  OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay72.Liferay72DeprecatedMethodsMigrator.xml,
  OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay73.Liferay73DeprecatedMethodsMigrator.xml,
- OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay74.RemoveDeprecatedJSPTags.xml
+ OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay74.RemoveDeprecatedJSPTags.xml,
+ OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.LegacyFileMigrationService.xml,
+ OSGI-INF/com.liferay.ide.upgrade.problems.core.internal.liferay70.ServiceBuilderLegacyFileMigrator.xml
